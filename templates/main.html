@@ -1,0 +1,74 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="{% static 'images/icon2.png' %}" />
+    <title>信息管理系统</title>
+    <link rel="stylesheet" href="{% static 'plungins/bootstrap-3.3.7-dist/css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'plungins/font-awesome-4.7.0/css/font-awesome.css' %}">
+    <script src="{% static 'js/jquery-3.1.1.js' %}"></script>
+    <script src="{% static 'plungins/bootstrap-3.3.7-dist/js/bootstrap.js' %}"></script>
+</head>
+<body>
+<div id="header-box" class="clearfix">
+    <div class="header-content">
+        <a href="/app01/index" class="logo"></a>
+
+        <div class="action-menu"></div>
+
+        <div class="login"></div>
+    </div>
+</div>
+
+
+<div id="main-box">
+<div class="menu">
+    <div class="item">
+        <div class="title"><img src="{% static 'images/navicon.png' %}" alt="管理系统">&nbsp;管理系统</div>
+        <ul class="nav nav-pills nav-stacked">
+              <li role="presentation"><a href="{% url 'college' %}" id="college">学院管理</a></li>
+              <li role="presentation"><a href="{% url 'classes' %}" id="classes">班级管理</a></li>
+              <li role="presentation"><a href="#" id="teachers">老师管理</a></li>
+              <li role="presentation"><a href="#" id="students">学生管理</a></li>
+              <li role="presentation"><a href="#" id="courses">课程管理</a></li>
+        </ul>
+    </div>
+    <div class="item">
+        <div class="title">菜单二</div>
+        <ul class="nav nav-pills nav-stacked hide">
+              <li role="presentation" class="active"><a href="#">扩展</a></li>
+              <li role="presentation"><a href="#">扩展</a></li>
+              <li role="presentation"><a href="#">扩展</a></li>
+        </ul>
+    </div>
+    <div class="item">
+        <div class="title">菜单三</div>
+        <ul class="nav nav-pills nav-stacked hide">
+              <li role="presentation" class="active"><a href="#">扩展</a></li>
+              <li role="presentation"><a href="#">扩展</a></li>
+              <li role="presentation"><a href="#">扩展</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="content">
+    {% block content %}
+    {% endblock %}
+</div>
+
+{% block model %}
+{% endblock %}
+
+</div>
+</body>
+<script>
+    {% block script %}
+    $(".item .title").click(function () {
+        $(this).next().removeClass('hide');
+        $(this).parent().siblings().children(".nav-stacked").addClass("hide");
+    });
+    {% endblock %}
+</script>
+</html>

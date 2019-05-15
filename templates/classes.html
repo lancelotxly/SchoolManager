@@ -1,0 +1,186 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<div class="container">
+   <button type="button" class="btn btn-info" id="addBtn">创建班级</button>
+</div>
+<div class="container">
+    <table class="table table-hover">
+      <thead>
+          <tr>
+              <th>班级名称</th>
+              <th>班级人数</th>
+              <th>所属学院</th>
+              <th>操作</th>
+          </tr>
+      </thead>
+      <tbody class="Operation">
+      {% for cls in cls_list %}
+          <tr nid="{{ cls.id }}" Dno="{{ cls.Dep.id }}">
+                <td name="Clsname">{{ cls.Clsname }}</td>
+                <td>{{ cls.students.count }}</td>
+                <td>{{ cls.Dep.Dname }}</td>
+                <td>
+                      <i class="fa fa-trash" aria-hidden="true" id="deleteBtn"></i>&nbsp;
+                      <i class="fa fa-pencil" aria-hidden="true" id="setBtn"></i>
+                </td>
+          </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block model %}
+<div class="model-addClass">
+<!-- Modal -->
+<div class="modal fade" id="addClass" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel">添加班级</h4>
+      </div>
+      <div class="modal-body">
+          <form class="form-horizontal" id="class-data">
+                <div class="form-group">
+                <label for="inputEmail3" class="col-sm-2 control-label">班级</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" name="cls_name" placeholder="班级名称">
+                </div>
+                </div>
+                <div class="form-group">
+                <label for="inputEmail3" class="col-sm-2 control-label">学院</label>
+                <div class="col-sm-10">
+                  <select class="form-control" name="college">
+                      {% for college in college_list %}
+                          <option value="{{ college.id }}">{{ college.Dname }}</option>
+                      {% endfor %}
+                  </select>
+                </div>
+                </div>
+          </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" name="alert" id="closeBtn">关闭</button>
+        <button type="button" class="btn btn-primary" id="saveAdd">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="model-setClass">
+<!-- Modal -->
+<div class="modal fade" id="setClass" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel">修改班级</h4>
+      </div>
+      <div class="modal-body">
+          <form class="form-horizontal" id="class-data">
+                <div class="form-group">
+                <label for="inputEmail3" class="col-sm-2 control-label">班级</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" name="Clsname" placeholder="班级名称">
+                </div>
+                </div>
+                <div class="form-group">
+                <label for="inputEmail3" class="col-sm-2 control-label">学院</label>
+                <div class="col-sm-10">
+                  <select class="form-control" name="Dname">
+                      {% for college in college_list %}
+                          <option value="{{ college.id }}">{{ college.Dname }}</option>
+                      {% endfor %}
+                  </select>
+                </div>
+                </div>
+          </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" name="alert" id="closeBtn">关闭</button>
+        <button type="button" class="btn btn-primary" id="saveSet">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}
+
+{% block script %}
+    {{ block.super }}
+    $('#addBtn').click(function () {
+           $('#addClass').modal('show');
+       });
+
+
+    $('#saveAdd').click(function(){
+       var class_name = $('.model-addClass input[name=cls_name]').val();
+       var college_id = $('.model-addClass select[name=college]').val();
+       console.log(class_name,college_id)
+       $.ajax({
+                 url:"{% url 'addClass' %}",
+                 type:'POST',
+                 data:{
+                     'class_name':class_name,
+                     'college_id':college_id
+                 },
+                 success:function () {
+                     location.reload();
+                 }
+             })
+    })
+
+    $('.Operation').on('click','#deleteBtn',function(){
+       var cls_id = $(this).parent().parent().attr('nid');
+       $.ajax({
+                 url:"{% url 'delClass' %}",
+                 type:'POST',
+                 data:{
+                     'cls_id':cls_id
+                 },
+                 success:function () {
+                     location.reload();
+                 }
+             })
+    })
+
+    var cls_id;
+    var Dno;
+    var cls_name
+    $('.Operation').on('click','#setBtn',function(){
+         cls_id = $(this).parent().parent().attr('nid');
+         Dno = $(this).parent().parent().attr('Dno');
+         cls_name = $(this).parent().parent().find('[name=Clsname]').text();
+         $('.model-setClass input[name=Clsname]').attr('placeholder',cls_name);
+         $('.model-setClass select[name=Dname]').find('option').each(function(){
+               if($(this).val() == Dno){
+                   $(this).prop('selected','selected');
+               }
+         })
+         $('#setClass').modal('show');
+    })
+
+    $('#saveSet').click(function(){
+        var new_class_name = $('.model-setClass input[name=Clsname]').val();
+        var new_college_id = $('.model-setClass select[name=Dname]').val();
+        if(new_class_name == ''){
+             new_class_name = cls_name;
+        }
+        if(new_college_id == ''){
+             new_college_id = Dno;
+        }
+        $.ajax({
+          url:"{% url 'setClass' %}",
+          type:"POST",
+          data:{
+             'class_name':new_class_name,
+             'college_id': new_college_id,
+             'cls_id':cls_id
+          },
+          success:function(){
+             location.reload()
+          }
+       })
+    })
+{% endblock %}

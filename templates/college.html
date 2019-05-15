@@ -1,0 +1,137 @@
+{% extends 'main.html' %}
+{% block content %}
+    <div class="container">
+       <button type="button" class="btn btn-danger" id="addBtn">创建学院</button>
+    </div>
+    <div class="container">
+        <table class="table table-hover">
+          <thead>
+              <tr>
+                  <th>学院名称</th>
+                  <th>学院人数</th>
+                  <th>操作</th>
+              </tr>
+          </thead>
+          <tbody class="Operation">
+          {% for dep in Dep_list %}
+              <tr>
+              <td nid="{{ dep.id }}">{{ dep.Dname }}</td>
+              <td>{{ t_num|add:s_num  }}</td>
+               <td>
+                 <i class="fa fa-trash" aria-hidden="true" id="deleteBtn"></i>&nbsp;&nbsp;
+                 <i class="fa fa-pencil" aria-hidden="true" id="setBtn"></i>
+               </td>
+              </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+{% block model %}
+<div class="model-addCollege">
+    <!-- Modal -->
+    <div class="modal fade" id="addCollege" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="myModalLabel">添加学院</h4>
+          </div>
+          <div class="modal-body">
+              <div class="form-group">
+                <label for="exampleInputPassword1">学院名称</label>
+                <input type="text" class="form-control" name="college_name" placeholder="学院名称">
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            <button type="button" class="btn btn-primary" id="saveAdd">保存</button>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+<div class="model-setCollege">
+    <!-- Modal -->
+    <div class="modal fade" id="setCollege" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="myModalLabel">修改学院</h4>
+          </div>
+          <div class="modal-body">
+              <div class="form-group">
+                <label for="exampleInputPassword1">学院名称</label>
+                <input type="text" class="form-control" name="college_name" placeholder="学院名称">
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            <button type="button" class="btn btn-primary" id="saveSet">保存</button>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+    {{ block.super }}
+     $('#addBtn').click(function () {
+            $('#addCollege').modal('show')
+         });
+
+     $('#saveAdd').click(function (){
+             var college_name = $('.model-addCollege input[name=college_name]').val();
+             $.ajax({
+                 url:"{% url 'addCollege' %}",
+                 type:'POST',
+                 data:{
+                     'college_name':college_name
+                 },
+                 success:function (arg) {
+                     location.reload()
+                 }
+             })
+         });
+
+     $('.Operation').on('click','#deleteBtn',function(){
+         var college_id = $(this).parent().prev().prev().attr('nid');
+          $.ajax({
+                 url:"{% url 'delCollege' %}",
+                 type:'POST',
+                 data:{
+                     'college_id':college_id
+                 },
+                 success:function () {
+                     location.reload();
+                 }
+             })
+    });
+
+
+    var college_id;
+    $('.Operation').on('click','#setBtn',function(){
+         college_id = $(this).parent().prev().prev().attr('nid');
+         var old_college_name = $(this).parent().prev().prev().text();
+         $('.model-setCollege input[name=college_name]').attr('placeholder',old_college_name);
+         $('#setCollege').modal('show')
+    });
+
+    $('#saveSet').click(function(){
+       var new_college_name = $('.model-setCollege input[name=college_name]').val();
+       $. ajax({
+          url: "{% url 'setCollege' %}",
+          type: 'POST',
+          data:{
+             'college_id': college_id,
+             'college_name':new_college_name
+          },
+          success:function (arg) {
+               location.reload()
+          }
+       })
+    })
+
+{% endblock %}
